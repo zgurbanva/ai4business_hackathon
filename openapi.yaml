@@ -1,0 +1,1341 @@
+openapi: 3.0.3
+info:
+  title: IRIA Ecosystem Platform API (Hackathon MVP)
+  version: 1.0.0
+  description: |
+    API contract for the Azerbaijan Startup Ecosystem Platform (IRIA Hackathon MVP).
+
+    Platform goals:
+    - Startup registry and ecosystem stakeholder management
+    - AI-assisted startup analysis (SWOT, success score, market insights)
+    - Similar startup discovery
+    - Program application workflows
+    - Investor interest tracking
+    - KPI dashboards for IRIA/Government
+    - Role-based access control and audit visibility
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+  - url: https://api.iria-ecosystem.az/api/v1
+    description: Production (planned)
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Users
+  - name: Startups
+  - name: AI Analysis
+  - name: Similarity
+  - name: Events
+  - name: Programs
+  - name: Applications
+  - name: Investor
+  - name: Dashboard
+  - name: Audit
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Service health check
+      security: []
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                service: "IRIA Ecosystem Platform API"
+                status: "healthy"
+                version: "1.0.0"
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      security: []
+      description: |
+        Creates a new user account. A user can be one of:
+        startup, investor, mentor, iria_admin.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+            example:
+              full_name: "Aysel Mammadova"
+              email: "aysel@example.com"
+              password: "StrongPass123!"
+              role: "startup"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: "aysel@example.com"
+              password: "StrongPass123!"
+      responses:
+        "200":
+          description: Login successful (JWT issued)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/me:
+    patch:
+      tags: [Users]
+      summary: Update current user profile
+      description: Update generic user/stakeholder profile fields.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateRequest"
+            example:
+              full_name: "Aysel Mammadova"
+              organization: "NovaTech"
+              bio: "Founder building climate-tech solutions."
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/{user_id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      description: |
+        Returns stakeholder profile (role-aware). Access can be restricted by RBAC.
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /startups:
+    get:
+      tags: [Startups]
+      summary: List startups
+      parameters:
+        - in: query
+          name: sector
+          schema:
+            type: string
+        - in: query
+          name: stage
+          schema:
+            $ref: "#/components/schemas/StartupStage"
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: min_score
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 100
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: page_size
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Startup list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartupListResponse"
+
+    post:
+      tags: [Startups]
+      summary: Create startup profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartupCreateRequest"
+      responses:
+        "201":
+          description: Startup profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartupProfile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /startups/{startup_id}:
+    get:
+      tags: [Startups]
+      summary: Get startup profile by ID
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+      responses:
+        "200":
+          description: Startup profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartupProfile"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Startups]
+      summary: Update startup profile
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartupUpdateRequest"
+      responses:
+        "200":
+          description: Startup profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartupProfile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /startups/{startup_id}/analysis:
+    post:
+      tags: [AI Analysis]
+      summary: Run AI-assisted startup analysis
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+      responses:
+        "200":
+          description: Analysis generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartupAnalysis"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    get:
+      tags: [AI Analysis]
+      summary: Get latest analysis for startup
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+      responses:
+        "200":
+          description: Latest analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartupAnalysis"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /startups/{startup_id}/similar:
+    get:
+      tags: [Similarity]
+      summary: Get similar startups
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 20
+      responses:
+        "200":
+          description: Similar startups list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarStartupsResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /events:
+    get:
+      tags: [Events]
+      summary: List ecosystem events and hackathons
+      security: []
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [hackathon, accelerator, incubator, meetup, grant]
+        - in: query
+          name: sector
+          schema:
+            type: string
+        - in: query
+          name: topic
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventListResponse"
+
+    post:
+      tags: [Events]
+      summary: Create event/program listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventCreateRequest"
+      responses:
+        "201":
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /programs:
+    get:
+      tags: [Programs]
+      summary: List ecosystem programs
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [open, closed]
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [incubation, acceleration, grant]
+      responses:
+        "200":
+          description: Program list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgramListResponse"
+
+    post:
+      tags: [Programs]
+      summary: Create program
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgramCreateRequest"
+      responses:
+        "201":
+          description: Program created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /programs/{program_id}:
+    get:
+      tags: [Programs]
+      summary: Get program details
+      parameters:
+        - $ref: "#/components/parameters/ProgramId"
+      responses:
+        "200":
+          description: Program details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Program"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /programs/{program_id}/apply:
+    post:
+      tags: [Applications]
+      summary: Apply startup to a program
+      parameters:
+        - $ref: "#/components/parameters/ProgramId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationCreateRequest"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Duplicate application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /applications:
+    get:
+      tags: [Applications]
+      summary: List applications
+      parameters:
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/ApplicationStatus"
+        - in: query
+          name: program_id
+          schema:
+            type: string
+        - in: query
+          name: startup_id
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Application list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationListResponse"
+
+  /applications/{application_id}:
+    get:
+      tags: [Applications]
+      summary: Get application by ID
+      parameters:
+        - $ref: "#/components/parameters/ApplicationId"
+      responses:
+        "200":
+          description: Application details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+    patch:
+      tags: [Applications]
+      summary: Update application status
+      parameters:
+        - $ref: "#/components/parameters/ApplicationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationStatusUpdateRequest"
+      responses:
+        "200":
+          description: Application updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /startups/{startup_id}/interest:
+    post:
+      tags: [Investor]
+      summary: Mark investor interest in a startup
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvestorInterestCreateRequest"
+      responses:
+        "201":
+          description: Interest recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestorInterest"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          description: Already marked as interested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags: [Investor]
+      summary: Remove investor interest
+      parameters:
+        - $ref: "#/components/parameters/StartupId"
+      responses:
+        "204":
+          description: Interest removed
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /investor/interests:
+    get:
+      tags: [Investor]
+      summary: List current investor's interested startups
+      responses:
+        "200":
+          description: Investor interest list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvestorInterestListResponse"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /dashboard/kpis:
+    get:
+      tags: [Dashboard]
+      summary: Get ecosystem KPI dashboard (IRIA)
+      responses:
+        "200":
+          description: KPI dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KpiDashboard"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /audit/logs:
+    get:
+      tags: [Audit]
+      summary: List audit logs
+      parameters:
+        - in: query
+          name: actor_role
+          schema:
+            $ref: "#/components/schemas/UserRole"
+        - in: query
+          name: action
+          schema:
+            type: string
+        - in: query
+          name: entity_type
+          schema:
+            type: string
+        - in: query
+          name: entity_id
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditLogListResponse"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: string
+      example: "usr_01JXYZABC123"
+
+    StartupId:
+      in: path
+      name: startup_id
+      required: true
+      schema:
+        type: string
+      example: "st_01JXYZABC123"
+
+    ProgramId:
+      in: path
+      name: program_id
+      required: true
+      schema:
+        type: string
+      example: "prg_01JXYZABC123"
+
+    ApplicationId:
+      in: path
+      name: application_id
+      required: true
+      schema:
+        type: string
+      example: "app_01JXYZABC123"
+
+  responses:
+    BadRequest:
+      description: Invalid request payload or query params
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Unauthorized:
+      description: Missing or invalid auth token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Forbidden:
+      description: User does not have permission for this action
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    UserRole:
+      type: string
+      enum: [startup, investor, mentor, iria_admin]
+
+    StartupStage:
+      type: string
+      enum: [idea, pre_seed, seed, series_a, growth]
+
+    ApplicationStatus:
+      type: string
+      enum: [submitted, under_review, accepted, rejected]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+          required: [code, message]
+      required: [error]
+
+    HealthResponse:
+      type: object
+      properties:
+        service:
+          type: string
+        status:
+          type: string
+        version:
+          type: string
+      required: [service, status]
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+      required: [page, page_size, total]
+
+    RegisterRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required: [full_name, email, password, role]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+        user:
+          $ref: "#/components/schemas/User"
+      required: [access_token, token_type, user]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: "#/components/schemas/UserRole"
+        organization:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, full_name, email, role, created_at, updated_at]
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+        organization:
+          type: string
+        bio:
+          type: string
+
+    StartupTraction:
+      type: object
+      properties:
+        users:
+          type: integer
+        monthly_revenue_azn:
+          type: number
+          format: float
+        pilots:
+          type: integer
+        partnerships:
+          type: integer
+
+    StartupFounder:
+      type: object
+      properties:
+        user_id:
+          type: string
+        full_name:
+          type: string
+        title:
+          type: string
+      required: [full_name]
+
+    StartupCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        tagline:
+          type: string
+        description:
+          type: string
+        sector:
+          type: string
+        stage:
+          $ref: "#/components/schemas/StartupStage"
+        website_url:
+          type: string
+          format: uri
+        founded_year:
+          type: integer
+        city:
+          type: string
+        team_size:
+          type: integer
+        founders:
+          type: array
+          items:
+            $ref: "#/components/schemas/StartupFounder"
+        traction:
+          $ref: "#/components/schemas/StartupTraction"
+      required: [name, description, sector, stage]
+
+    StartupUpdateRequest:
+      type: object
+      properties:
+        tagline:
+          type: string
+        description:
+          type: string
+        sector:
+          type: string
+        stage:
+          $ref: "#/components/schemas/StartupStage"
+        website_url:
+          type: string
+          format: uri
+        city:
+          type: string
+        team_size:
+          type: integer
+        traction:
+          $ref: "#/components/schemas/StartupTraction"
+
+    StartupProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        startup_id_code:
+          type: string
+        owner_user_id:
+          type: string
+        name:
+          type: string
+        tagline:
+          type: string
+          nullable: true
+        description:
+          type: string
+        sector:
+          type: string
+        stage:
+          $ref: "#/components/schemas/StartupStage"
+        website_url:
+          type: string
+          nullable: true
+        founded_year:
+          type: integer
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        team_size:
+          type: integer
+          nullable: true
+        founders:
+          type: array
+          items:
+            $ref: "#/components/schemas/StartupFounder"
+        traction:
+          $ref: "#/components/schemas/StartupTraction"
+        latest_success_score:
+          type: number
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, startup_id_code, name, description, sector, stage, created_at, updated_at]
+
+    StartupListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/StartupProfile"
+        meta:
+          $ref: "#/components/schemas/PaginationMeta"
+      required: [items, meta]
+
+    SWOT:
+      type: object
+      properties:
+        strengths:
+          type: array
+          items:
+            type: string
+        weaknesses:
+          type: array
+          items:
+            type: string
+        opportunities:
+          type: array
+          items:
+            type: string
+        threats:
+          type: array
+          items:
+            type: string
+      required: [strengths, weaknesses, opportunities, threats]
+
+    ScoreFactor:
+      type: object
+      properties:
+        factor:
+          type: string
+        weight:
+          type: number
+          format: float
+        contribution:
+          type: number
+          format: float
+        explanation:
+          type: string
+      required: [factor, weight, contribution]
+
+    StartupAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+        startup_id:
+          type: string
+        success_score:
+          type: number
+          format: float
+        score_band:
+          type: string
+          enum: [low, medium, high]
+        swot:
+          $ref: "#/components/schemas/SWOT"
+        market_snapshot:
+          type: string
+        positioning_insight:
+          type: string
+        explainability:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreFactor"
+        generated_at:
+          type: string
+          format: date-time
+      required: [id, startup_id, success_score, score_band, swot, explainability, generated_at]
+
+    SimilarStartupItem:
+      type: object
+      properties:
+        startup_id:
+          type: string
+        startup_name:
+          type: string
+        similarity_score:
+          type: number
+          format: float
+        reasons:
+          type: array
+          items:
+            type: string
+      required: [startup_id, startup_name, similarity_score, reasons]
+
+    SimilarStartupsResponse:
+      type: object
+      properties:
+        startup_id:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SimilarStartupItem"
+      required: [startup_id, items]
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [hackathon, accelerator, incubator, meetup, grant]
+        sector:
+          type: string
+          nullable: true
+        topic:
+          type: string
+          nullable: true
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        location:
+          type: string
+          nullable: true
+        registration_url:
+          type: string
+          nullable: true
+      required: [id, title, category, start_date, end_date]
+
+    EventCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [hackathon, accelerator, incubator, meetup, grant]
+        sector:
+          type: string
+        topic:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        location:
+          type: string
+        registration_url:
+          type: string
+          format: uri
+      required: [title, category, start_date, end_date]
+
+    EventListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+      required: [items]
+
+    Program:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [incubation, acceleration, grant]
+        description:
+          type: string
+        status:
+          type: string
+          enum: [open, closed]
+        application_deadline:
+          type: string
+          format: date
+          nullable: true
+        eligibility_notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, title, type, status, created_at]
+
+    ProgramCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [incubation, acceleration, grant]
+        description:
+          type: string
+        status:
+          type: string
+          enum: [open, closed]
+        application_deadline:
+          type: string
+          format: date
+        eligibility_notes:
+          type: string
+      required: [title, type, description, status]
+
+    ProgramListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Program"
+      required: [items]
+
+    ApplicationCreateRequest:
+      type: object
+      properties:
+        startup_id:
+          type: string
+        cover_letter:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: uri
+      required: [startup_id]
+
+    ApplicationStatusUpdateRequest:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/ApplicationStatus"
+        review_note:
+          type: string
+      required: [status]
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+        program_id:
+          type: string
+        startup_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ApplicationStatus"
+        submitted_by_user_id:
+          type: string
+        cover_letter:
+          type: string
+          nullable: true
+        review_note:
+          type: string
+          nullable: true
+        submitted_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, program_id, startup_id, status, submitted_at, updated_at]
+
+    ApplicationListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Application"
+      required: [items]
+
+    InvestorInterestCreateRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          maxLength: 500
+
+    InvestorInterest:
+      type: object
+      properties:
+        id:
+          type: string
+        investor_user_id:
+          type: string
+        startup_id:
+          type: string
+        note:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, investor_user_id, startup_id, created_at]
+
+    InvestorInterestListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvestorInterest"
+      required: [items]
+
+    SectorDistributionItem:
+      type: object
+      properties:
+        sector:
+          type: string
+        count:
+          type: integer
+      required: [sector, count]
+
+    KpiDashboard:
+      type: object
+      properties:
+        total_startups:
+          type: integer
+        total_programs:
+          type: integer
+        applications_submitted:
+          type: integer
+        investor_interest_count:
+          type: integer
+        average_startup_score:
+          type: number
+          format: float
+          nullable: true
+        sector_distribution:
+          type: array
+          items:
+            $ref: "#/components/schemas/SectorDistributionItem"
+        trust_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+        updated_at:
+          type: string
+          format: date-time
+      required: [total_startups, applications_submitted, investor_interest_count, sector_distribution, updated_at]
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+        actor_user_id:
+          type: string
+        actor_role:
+          $ref: "#/components/schemas/UserRole"
+        action:
+          type: string
+        entity_type:
+          type: string
+        entity_id:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, actor_role, action, entity_type, entity_id, created_at]
+
+    AuditLogListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditLog"
+      required: [items]
