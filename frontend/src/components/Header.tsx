@@ -60,10 +60,22 @@ export default function Header({
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
-    const handleProfileSwitch = (path: string, e: React.MouseEvent) => {
+    const handleProfileSwitch = async (title: string, path: string, e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        navigate(path);
+
+        try {
+            if (title === 'Gov Admin') {
+                await authService.login({ email: 'admin@test.com', password: 'admin123' });
+            } else if (title === 'Investor') {
+                await authService.login({ email: 'investor@test.com', password: 'password123' });
+            }
+            // For other roles, we just navigate or we could add more demo accounts
+            navigate(path);
+        } catch (err) {
+            console.error('Demo login failed', err);
+            navigate(path); // Fallback to just navigating
+        }
     };
 
     const navLinks = variant === 'investor' ? [
@@ -117,8 +129,8 @@ export default function Header({
                                     key={nav.link}
                                     to={nav.link}
                                     className={`text-sm font-semibold transition-all ${isActive(nav.link)
-                                            ? (variant === 'investor' ? 'text-white border-b-2 border-indigo-600 pb-1 -mb-1' : 'text-accent border-b-2 border-accent pb-1 -mb-1 font-bold')
-                                            : 'text-slate-300 hover:text-white'
+                                        ? (variant === 'investor' ? 'text-white border-b-2 border-indigo-600 pb-1 -mb-1' : 'text-accent border-b-2 border-accent pb-1 -mb-1 font-bold')
+                                        : 'text-slate-300 hover:text-white'
                                         } text-nowrap`}
                                 >
                                     {nav.title}
@@ -177,7 +189,7 @@ export default function Header({
                                             {profiles.map((profile, idx) => (
                                                 <button
                                                     key={idx}
-                                                    onClick={(e) => handleProfileSwitch(profile.link, e)}
+                                                    onClick={(e) => handleProfileSwitch(profile.title, profile.link, e)}
                                                     className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-accent/10 hover:translate-x-1 transition-all group text-left"
                                                 >
                                                     <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-accent group-hover:bg-accent/20 transition-colors">
@@ -250,8 +262,8 @@ export default function Header({
                                     key={nav.link}
                                     to={nav.link}
                                     className={`flex items-center justify-between p-4 rounded-xl text-lg font-bold transition-all ${isActive(nav.link)
-                                            ? 'bg-accent/20 text-accent border border-accent/20'
-                                            : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                        ? 'bg-accent/20 text-accent border border-accent/20'
+                                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
                                         }`}
                                 >
                                     {nav.title}
