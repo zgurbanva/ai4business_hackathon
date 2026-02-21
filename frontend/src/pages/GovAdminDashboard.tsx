@@ -73,11 +73,15 @@ const regionalIntensityData = [
 
 import Header from '../components/Header';
 import dashboardService, { KpiDashboard } from '../services/dashboard';
+import startupService, { Startup } from '../services/startup';
 import { useState, useEffect } from 'react';
 
 export default function GovAdminDashboard() {
   const [kpis, setKpis] = useState<KpiDashboard | null>(null);
+  const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchingStartups, setFetchingStartups] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchKpis = async () => {
@@ -90,8 +94,26 @@ export default function GovAdminDashboard() {
         setLoading(false);
       }
     };
+
+    const fetchStartups = async () => {
+      try {
+        const data = await startupService.getStartups();
+        setStartups(data.items);
+      } catch (err) {
+        console.error('Failed to fetch startups', err);
+      } finally {
+        setFetchingStartups(false);
+      }
+    };
+
     fetchKpis();
+    fetchStartups();
   }, []);
+
+  const filteredStartups = startups.filter(s =>
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.sector.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <div className="min-h-screen bg-background-dark flex text-slate-100">
       {/* Sidebar */}
@@ -363,6 +385,128 @@ export default function GovAdminDashboard() {
                   <p className="text-[10px] font-bold text-slate-500 uppercase">Top Region</p>
                   <p className="text-sm font-black text-emerald-400">Baku Metropolitan</p>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Startup Ecosystem Registry */}
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/5">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Rocket className="text-accent" size={24} />
+                  Startup Ecosystem Registry
+                </h3>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Institutional Oversight & Market Intelligence</p>
+              </div>
+
+              <div className="relative w-full md:w-96">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search startups, sectors, or stages..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-slate-950/50 border border-slate-800 h-12 pl-12 pr-4 rounded-xl text-sm text-white focus:ring-2 focus:ring-accent outline-none transition-all placeholder:text-slate-600"
+                />
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              {fetchingStartups ? (
+                <div className="p-20 text-center">
+                  <div className="animate-spin size-10 border-4 border-accent border-t-transparent rounded-full mx-auto mb-4" />
+                  <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Accessing National Database...</p>
+                </div>
+              ) : filteredStartups.length === 0 ? (
+                <div className="p-20 text-center">
+                  <div className="size-16 bg-slate-800/50 rounded-2xl flex items-center justify-center text-slate-600 mx-auto mb-6">
+                    <Search size={32} />
+                  </div>
+                  <h4 className="text-white font-bold text-lg mb-2">No Matching Entities Found</h4>
+                  <p className="text-slate-500 text-sm max-w-sm mx-auto">Verify your search criteria or register a new entity if it's missing from the national innovation map.</p>
+                </div>
+              ) : (
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-slate-800 bg-slate-950/30">
+                      <th className="px-8 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Startup Entity</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Sector & Stage</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Overview</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Success Score</th>
+                      <th className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Activity</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/50">
+                    {filteredStartups.map((startup) => (
+                      <motion.tr
+                        key={startup.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="group hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-8 py-6">
+                          <div className="flex items-center gap-4">
+                            <div className="size-12 rounded-xl bg-accent/10 flex items-center justify-center text-accent font-black text-lg border border-accent/20">
+                              {startup.name[0]}
+                            </div>
+                            <div>
+                              <p className="font-bold text-white group-hover:text-accent transition-colors">{startup.name}</p>
+                              <p className="text-[10px] text-slate-500 font-bold tracking-tight uppercase">{startup.startup_id_code}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-6">
+                          <div className="flex flex-col gap-1">
+                            <span className="px-2 py-1 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase rounded w-fit border border-indigo-500/20">
+                              {startup.sector}
+                            </span>
+                            <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5 mt-1">
+                              <Activity size={12} className="text-slate-600" />
+                              {startup.stage}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-6">
+                          <p className="text-xs text-slate-400 leading-relaxed max-w-xs line-clamp-2">
+                            {startup.description}
+                          </p>
+                        </td>
+                        <td className="px-6 py-6">
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="text-lg font-black text-white">
+                              {startup.latest_success_score ? Math.round(startup.latest_success_score) : '—'}
+                            </div>
+                            <div className="h-1.5 w-20 bg-slate-800 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-accent"
+                                style={{ width: `${startup.latest_success_score || 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <Link
+                            to={`/startup/${startup.id}`}
+                            className="inline-flex items-center gap-2 text-xs font-bold text-accent hover:text-white transition-colors bg-accent/10 px-4 py-2 rounded-lg border border-accent/20"
+                          >
+                            Explore Intel
+                            <TrendingUp size={14} />
+                          </Link>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <div className="px-8 py-4 bg-slate-950/50 border-t border-slate-800 flex justify-between items-center">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                Showing {filteredStartups.length} Registered Entities
+              </p>
+              <div className="flex items-center gap-1 opacity-50 grayscale">
+                <Shield size={12} className="text-slate-500" />
+                <span className="text-[9px] font-bold text-slate-600 uppercase">Institutional Grade Data Verification</span>
               </div>
             </div>
           </div>

@@ -19,7 +19,9 @@ import {
     Bell,
     Search,
     TrendingUp,
-    X
+    X,
+    LayoutDashboard,
+    Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -36,6 +38,7 @@ export default function Header({
     variant = 'default'
 }: HeaderProps) {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const location = useLocation();
@@ -51,9 +54,10 @@ export default function Header({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Close dropdown on navigation
+    // Close dropdowns on navigation
     useEffect(() => {
         setIsProfileOpen(false);
+        setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
     const handleProfileSwitch = (path: string, e: React.MouseEvent) => {
@@ -62,12 +66,29 @@ export default function Header({
         navigate(path);
     };
 
+    const navLinks = variant === 'investor' ? [
+        { title: 'Portal Home', link: '/' },
+        { title: 'Dashboard', link: '/investor-profile' },
+        { title: 'Portfolio', link: '/investor' },
+        { title: 'Market Insights', link: '/analytics' },
+        { title: 'Reports', link: '/reports' },
+    ] : [
+        { title: 'Ecosystem', link: '/admin' },
+        { title: 'IT Registry', link: '/it-registry' },
+        { title: 'Events', link: '/events' },
+        { title: 'Analytics', link: '/analytics' },
+        { title: 'Resources', link: '/program' },
+        { title: 'Support', link: '/support' },
+    ];
+
     const profiles = [
         { title: 'Gov Admin', icon: <Shield size={16} />, link: '/admin' },
         { title: 'Investor', icon: <Wallet size={16} />, link: '/investor-profile' },
         { title: 'Startup', icon: <Rocket size={16} />, link: '/startup-onboarding' },
         { title: 'Mentor', icon: <Users size={16} />, link: '/mentor' },
     ];
+
+    const isActive = (path: string) => location.pathname === path;
 
     return (
         <header className="sticky top-0 z-50 w-full bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
@@ -91,23 +112,18 @@ export default function Header({
 
                         {/* Desktop Navigation */}
                         <nav className="hidden lg:flex items-center gap-8">
-                            {variant === 'investor' ? (
-                                <>
-                                    <Link to="/" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Portal Home</Link>
-                                    <Link to="/investor-profile" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Dashboard</Link>
-                                    <Link to="/investor" className="text-sm font-semibold text-white border-b-2 border-indigo-600 pb-1 -mb-1 transition-colors">Portfolio</Link>
-                                    <Link to="/analytics" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Market Insights</Link>
-                                    <Link to="/reports" className="text-sm font-semibold text-slate-300 hover:text-white transition-colors">Reports</Link>
-                                </>
-                            ) : (
-                                <>
-                                    <Link to="/admin" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Ecosystem</Link>
-                                    <Link to="/events" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Events</Link>
-                                    <Link to="/analytics" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Analytics</Link>
-                                    <Link to="/program" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Resources</Link>
-                                    <Link to="/support" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Support</Link>
-                                </>
-                            )}
+                            {navLinks.map((nav) => (
+                                <Link
+                                    key={nav.link}
+                                    to={nav.link}
+                                    className={`text-sm font-semibold transition-all ${isActive(nav.link)
+                                            ? (variant === 'investor' ? 'text-white border-b-2 border-indigo-600 pb-1 -mb-1' : 'text-accent border-b-2 border-accent pb-1 -mb-1 font-bold')
+                                            : 'text-slate-300 hover:text-white'
+                                        } text-nowrap`}
+                                >
+                                    {nav.title}
+                                </Link>
+                            ))}
                         </nav>
                     </div>
 
@@ -209,12 +225,54 @@ export default function Header({
                             </div>
                         )}
 
-                        <button className="lg:hidden text-accent">
-                            <Menu size={28} />
+                        <button
+                            className="lg:hidden text-accent p-2 hover:bg-accent/10 rounded-lg transition-colors"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        >
+                            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
                         </button>
                     </div>
                 </div>
             </div>
+
+            {/* Mobile Menu Overlay */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="lg:hidden border-t border-slate-800 bg-slate-900/95 backdrop-blur-xl overflow-hidden"
+                    >
+                        <nav className="p-4 flex flex-col gap-2">
+                            {navLinks.map((nav) => (
+                                <Link
+                                    key={nav.link}
+                                    to={nav.link}
+                                    className={`flex items-center justify-between p-4 rounded-xl text-lg font-bold transition-all ${isActive(nav.link)
+                                            ? 'bg-accent/20 text-accent border border-accent/20'
+                                            : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                                        }`}
+                                >
+                                    {nav.title}
+                                    {isActive(nav.link) && <div className="size-2 rounded-full bg-accent" />}
+                                </Link>
+                            ))}
+
+                            {!authService.isAuthenticated() && (
+                                <div className="mt-4 grid grid-cols-2 gap-4">
+                                    <Link to="/login" className="h-14 rounded-xl border border-slate-700 flex items-center justify-center font-bold text-white hover:bg-white/5">
+                                        Sign In
+                                    </Link>
+                                    <Link to="/register" className="h-14 rounded-xl bg-accent flex items-center justify-center font-bold text-white hover:bg-accent/90">
+                                        Get Started
+                                    </Link>
+                                </div>
+                            )}
+                        </nav>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </header>
     );
 }
