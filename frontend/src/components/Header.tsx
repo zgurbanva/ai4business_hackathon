@@ -109,12 +109,12 @@ export default function Header({
                     <div className="flex items-center gap-12">
                         {/* Logo / Branding */}
                         <Link to="/" className="flex items-center gap-3 group">
-                            <div className={`size-10 ${variant === 'investor' ? 'bg-indigo-600' : 'bg-accent'} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform`}>
-                                {variant === 'investor' ? <TrendingUp size={24} className="text-white" /> : <Rocket size={24} className="text-white" />}
+                            <div className="size-10 bg-accent rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                                <Rocket size={24} className="text-white" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-lg font-black text-white tracking-tighter leading-none">
-                                    Innovation <span className={variant === 'investor' ? 'text-indigo-500' : 'text-accent'}>AZ</span>
+                                    Innovation <span className="text-accent">AZ</span>
                                 </span>
                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mt-1">
                                     {variant === 'investor' ? 'Investor Portal' : 'Azerbaijan'}
@@ -129,7 +129,7 @@ export default function Header({
                                     key={nav.link}
                                     to={nav.link}
                                     className={`text-sm font-semibold transition-all ${isActive(nav.link)
-                                        ? (variant === 'investor' ? 'text-white border-b-2 border-indigo-600 pb-1 -mb-1' : 'text-accent border-b-2 border-accent pb-1 -mb-1 font-bold')
+                                        ? 'text-accent border-b-2 border-accent pb-1 -mb-1 font-bold'
                                         : 'text-slate-300 hover:text-white'
                                         } text-nowrap`}
                                 >

@@ -8,7 +8,7 @@ interface InvestorLayoutProps {
 
 export default function InvestorLayout({ children }: InvestorLayoutProps) {
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+        <div className="min-h-screen bg-background-dark flex flex-col">
             <Header variant="investor" showSearch searchPlaceholder="Search portfolio..." />
             <div className="flex-1 flex max-w-[1600px] mx-auto w-full">
                 <SidebarNav />

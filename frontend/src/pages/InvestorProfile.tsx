@@ -39,15 +39,15 @@ export default function InvestorProfile() {
             {/* Header */}
             <div className="flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-black text-slate-800 mb-2">Investor Dashboard</h1>
-                    <p className="text-sm text-slate-500 font-medium">Strategic oversight for Peak Ventures institutional fund.</p>
+                    <h1 className="text-3xl font-black text-white mb-2">Investor Dashboard</h1>
+                    <p className="text-sm text-slate-400 font-medium">Strategic oversight for Peak Ventures institutional fund.</p>
                 </div>
                 <div className="hidden sm:flex gap-3">
-                    <button className="flex items-center gap-2 px-4 h-11 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-all">
+                    <button className="flex items-center gap-2 px-4 h-11 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold text-slate-300 hover:bg-slate-700 transition-all">
                         <Share2 size={18} />
                         Export Data
                     </button>
-                    <button className="flex items-center gap-2 px-6 h-11 bg-[#312e81] text-white rounded-xl font-bold hover:bg-[#2e2b7a] transition-all shadow-lg shadow-indigo-100">
+                    <button className="flex items-center gap-2 px-6 h-11 bg-accent text-white rounded-xl font-bold hover:bg-accent/90 transition-all shadow-lg shadow-accent/10">
                         Institutional Reports
                     </button>
                 </div>
@@ -56,50 +56,50 @@ export default function InvestorProfile() {
             <div className="grid lg:grid-cols-[300px,1fr] gap-8">
                 {/* Sidebar Info */}
                 <div className="space-y-6">
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8 text-center sm:text-left">
+                    <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-sm space-y-8 text-center sm:text-left">
                         <div className="flex flex-col items-center sm:items-start space-y-4">
-                            <div className="size-20 bg-indigo-50 rounded-2xl flex items-center justify-center border border-indigo-100">
-                                <div className="size-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
+                            <div className="size-20 bg-accent/10 rounded-2xl flex items-center justify-center border border-accent/20">
+                                <div className="size-12 bg-accent rounded-xl flex items-center justify-center text-white shadow-lg shadow-accent/20">
                                     <TrendingUp size={24} />
                                 </div>
                             </div>
                             <div className="text-center sm:text-left">
-                                <h1 className="text-2xl font-black text-slate-800">Peak Ventures</h1>
-                                <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mt-1 bg-indigo-50 px-2 py-0.5 rounded inline-block">Institutional VC</p>
+                                <h1 className="text-2xl font-black text-white">Peak Ventures</h1>
+                                <p className="text-[10px] font-black text-accent uppercase tracking-widest mt-1 bg-accent/10 px-2 py-0.5 rounded inline-block">Institutional VC</p>
                             </div>
                         </div>
 
-                        <div className="space-y-6 border-t border-slate-100 pt-6">
+                        <div className="space-y-6 border-t border-slate-800 pt-6">
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">AUM</p>
-                                <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                    <Briefcase size={16} className="text-slate-400" />
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">AUM</p>
+                                <div className="flex items-center gap-2 text-sm font-bold text-slate-300">
+                                    <Briefcase size={16} className="text-slate-500" />
                                     $450M Total Assets
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Core Sectors</p>
-                                <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                    <Target size={16} className="text-slate-400" />
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Core Sectors</p>
+                                <div className="flex items-center gap-2 text-sm font-bold text-slate-300">
+                                    <Target size={16} className="text-slate-500" />
                                     Fintech, AI, SaaS
                                 </div>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Headquarters</p>
-                                <div className="flex items-center gap-2 text-sm font-bold text-slate-700">
-                                    <Globe size={16} className="text-slate-400" />
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Headquarters</p>
+                                <div className="flex items-center gap-2 text-sm font-bold text-slate-300">
+                                    <Globe size={16} className="text-slate-500" />
                                     Baku, Azerbaijan
                                 </div>
                             </div>
                         </div>
 
-                        <button className="w-full h-12 bg-[#312e81] text-white rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-[#2e2b7a] transition-all shadow-lg shadow-indigo-100">
+                        <button className="w-full h-12 bg-accent text-white rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-accent/90 transition-all shadow-xl shadow-accent/20">
                             <Mail size={18} />
                             Contact Fund
                         </button>
                     </div>
 
-                    <div className="bg-[#312e81] rounded-2xl p-8 text-white space-y-4 shadow-xl relative overflow-hidden">
+                    <div className="bg-accent rounded-2xl p-8 text-white space-y-4 shadow-xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-50" />
                         <div className="relative z-10">
                             <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-2">Deployment Status</p>
@@ -117,13 +117,13 @@ export default function InvestorProfile() {
                     {/* Top Row: Portfolio Health & Key Metrics */}
                     <div className="grid md:grid-cols-[1.2fr,1fr,1fr] gap-6">
                         {/* Portfolio Health Gauge */}
-                        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center justify-center relative min-h-[300px]">
-                            <h3 className="text-md font-bold text-slate-800 absolute top-8 left-8">Portfolio Health</h3>
+                        <div className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-sm flex flex-col items-center justify-center relative min-h-[300px]">
+                            <h3 className="text-md font-bold text-white absolute top-8 left-8">Portfolio Health</h3>
                             <div className="size-48 relative mt-4">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
-                                            data={healthData}
+                                            data={healthData.map(d => ({ ...d, color: d.name === 'Health' ? '#573f9d' : '#1e293b' }))}
                                             cx="50%"
                                             cy="50%"
                                             innerRadius={65}
@@ -135,17 +135,17 @@ export default function InvestorProfile() {
                                             stroke="none"
                                         >
                                             {healthData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                                <Cell key={`cell-${index}`} fill={entry.name === 'Health' ? '#573f9d' : '#1e293b'} />
                                             ))}
                                         </Pie>
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-5xl font-black text-slate-800">84</span>
-                                    <span className="text-[12px] font-bold text-slate-400 uppercase">/100</span>
+                                    <span className="text-5xl font-black text-white">84</span>
+                                    <span className="text-[12px] font-bold text-slate-500 uppercase">/100</span>
                                 </div>
                             </div>
-                            <div className="mt-6 flex items-center gap-1.5 text-emerald-500 font-bold text-sm">
+                            <div className="mt-6 flex items-center gap-1.5 text-emerald-400 font-bold text-sm">
                                 <TrendingUp size={16} />
                                 +2.1% Alpha Gain
                             </div>
@@ -153,63 +153,63 @@ export default function InvestorProfile() {
 
                         {/* Metrics Pair 1 */}
                         <div className="grid grid-rows-2 gap-6">
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-5">
-                                <div className="size-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-start gap-5">
+                                <div className="size-12 bg-accent/10 rounded-xl flex items-center justify-center text-accent">
                                     <Briefcase size={24} />
                                 </div>
                                 <div>
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">AUM Growth</p>
-                                    <h4 className="text-3xl font-black text-slate-800">+18%</h4>
-                                    <p className="text-[11px] text-slate-400 font-medium">Year-over-Year</p>
+                                    <h4 className="text-3xl font-black text-white">+18%</h4>
+                                    <p className="text-[11px] text-slate-500 font-medium">Year-over-Year</p>
                                 </div>
                             </div>
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-5">
-                                <div className="size-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-start gap-5">
+                                <div className="size-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400">
                                     <Zap size={24} />
                                 </div>
                                 <div>
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Deployment</p>
-                                    <h4 className="text-3xl font-black text-slate-800">8.4x</h4>
-                                    <p className="text-[11px] text-slate-400 font-medium">Cap Velocity</p>
+                                    <h4 className="text-3xl font-black text-white">8.4x</h4>
+                                    <p className="text-[11px] text-slate-500 font-medium">Cap Velocity</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Metrics Pair 2 */}
                         <div className="grid grid-rows-2 gap-6">
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-5">
-                                <div className="size-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-start gap-5">
+                                <div className="size-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
                                     <Target size={24} />
                                 </div>
                                 <div>
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">Avg Check</p>
-                                    <h4 className="text-3xl font-black text-slate-800">$2.4M</h4>
-                                    <p className="text-[11px] text-slate-400 font-medium">Core Equity rounds</p>
+                                    <h4 className="text-3xl font-black text-white">$2.4M</h4>
+                                    <p className="text-[11px] text-slate-500 font-medium">Core Equity rounds</p>
                                 </div>
                             </div>
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-5">
-                                <div className="size-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
+                            <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-start gap-5">
+                                <div className="size-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-400">
                                     <Activity size={24} />
                                 </div>
                                 <div>
                                     <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-1">IRR (Net)</p>
-                                    <h4 className="text-3xl font-black text-slate-800">32%</h4>
-                                    <p className="text-[11px] text-slate-400 font-medium">Portfolio Average</p>
+                                    <h4 className="text-3xl font-black text-white">32%</h4>
+                                    <p className="text-[11px] text-slate-500 font-medium">Portfolio Average</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Investment Thesis Section */}
-                    <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden min-h-[480px] flex flex-col">
-                        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-                            <PieIcon className="text-indigo-900" size={24} />
-                            <h3 className="font-black text-slate-900 text-lg">Investment Thesis & Strategy</h3>
+                    <div className="bg-slate-900 rounded-[2rem] border border-slate-800 shadow-sm overflow-hidden min-h-[480px] flex flex-col">
+                        <div className="p-6 border-b border-slate-800 flex items-center gap-3">
+                            <PieIcon className="text-accent" size={24} />
+                            <h3 className="font-black text-white text-lg">Investment Thesis & Strategy</h3>
                         </div>
-                        <div className="flex-1 grid md:grid-cols-2 divide-x divide-y divide-slate-100">
+                        <div className="flex-1 grid md:grid-cols-2 divide-x divide-y divide-slate-800">
                             {/* Strategic Focus */}
                             <div className="p-10 space-y-6">
-                                <div className="flex items-center gap-2.5 text-indigo-600">
+                                <div className="flex items-center gap-2.5 text-accent">
                                     <Target size={24} />
                                     <h4 className="font-black text-lg">Strategic Focus</h4>
                                 </div>
@@ -219,8 +219,8 @@ export default function InvestorProfile() {
                                         'B2B SaaS models with high scalability and low churn.',
                                         'Regional focus on Eastern Europe and Central Asia.'
                                     ].map((s, idx) => (
-                                        <li key={idx} className="text-[15px] text-slate-600 flex items-start gap-3 leading-relaxed">
-                                            <div className="size-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                                        <li key={idx} className="text-[15px] text-slate-400 flex items-start gap-3 leading-relaxed">
+                                            <div className="size-1.5 rounded-full bg-accent mt-2 shrink-0" />
                                             {s}
                                         </li>
                                     ))}
@@ -228,7 +228,7 @@ export default function InvestorProfile() {
                             </div>
                             {/* Exit Track Record */}
                             <div className="p-10 space-y-6">
-                                <div className="flex items-center gap-2.5 text-emerald-600">
+                                <div className="flex items-center gap-2.5 text-emerald-400">
                                     <TrendingUp size={24} />
                                     <h4 className="font-black text-lg">Exit Track Record</h4>
                                 </div>
@@ -238,7 +238,7 @@ export default function InvestorProfile() {
                                         'Average 4.2x multiple on exited capital.',
                                         'Active pipeline for 2 IPO candidates in 2024.'
                                     ].map((w, idx) => (
-                                        <li key={idx} className="text-[15px] text-slate-600 flex items-start gap-3 leading-relaxed">
+                                        <li key={idx} className="text-[15px] text-slate-400 flex items-start gap-3 leading-relaxed">
                                             <div className="size-1.5 rounded-full bg-emerald-500 mt-2 shrink-0" />
                                             {w}
                                         </li>
@@ -247,7 +247,7 @@ export default function InvestorProfile() {
                             </div>
                             {/* LP Composition */}
                             <div className="p-10 space-y-6">
-                                <div className="flex items-center gap-2.5 text-blue-600">
+                                <div className="flex items-center gap-2.5 text-blue-400">
                                     <Users size={24} />
                                     <h4 className="font-black text-lg">LP Composition</h4>
                                 </div>
@@ -257,7 +257,7 @@ export default function InvestorProfile() {
                                         '35% Family Offices with strategic alignment.',
                                         '25% Ultra High Net Worth individuals.'
                                     ].map((o, idx) => (
-                                        <li key={idx} className="text-[15px] text-slate-600 flex items-start gap-3 leading-relaxed">
+                                        <li key={idx} className="text-[15px] text-slate-400 flex items-start gap-3 leading-relaxed">
                                             <div className="size-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
                                             {o}
                                         </li>
@@ -266,7 +266,7 @@ export default function InvestorProfile() {
                             </div>
                             {/* Risk Tolerance */}
                             <div className="p-10 space-y-6">
-                                <div className="flex items-center gap-2.5 text-orange-500">
+                                <div className="flex items-center gap-2.5 text-orange-400">
                                     <AlertTriangle size={24} />
                                     <h4 className="font-black text-lg">Risk Tolerance</h4>
                                 </div>
@@ -276,7 +276,7 @@ export default function InvestorProfile() {
                                         'Strict compliance and ESG underwriting criteria.',
                                         'Hedged exposure to emerging market currency risks.'
                                     ].map((t, idx) => (
-                                        <li key={idx} className="text-[15px] text-slate-600 flex items-start gap-3 leading-relaxed">
+                                        <li key={idx} className="text-[15px] text-slate-400 flex items-start gap-3 leading-relaxed">
                                             <div className="size-1.5 rounded-full bg-orange-400 mt-2 shrink-0" />
                                             {t}
                                         </li>
@@ -289,33 +289,33 @@ export default function InvestorProfile() {
                     {/* Portfolio Overview */}
                     <div className="space-y-6">
                         <div className="flex justify-between items-center">
-                            <h3 className="font-black text-slate-800 text-lg">Portfolio Highlight</h3>
-                            <Link to="/investor" className="text-xs font-black text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest border-b border-indigo-100 pb-0.5">Explore All Companies</Link>
+                            <h3 className="font-black text-white text-lg">Portfolio Highlight</h3>
+                            <Link to="/investor" className="text-xs font-black text-accent hover:text-accent/80 transition-colors uppercase tracking-widest border-b border-accent/20 pb-0.5">Explore All Companies</Link>
                         </div>
                         <div className="grid md:grid-cols-3 gap-6">
                             {[
-                                { name: 'TechNova Solutions', sector: 'FINTECH | SERIES A', score: 78, color: 'bg-indigo-600' },
-                                { name: 'CyberShield', sector: 'SECURITY | SEED', score: 62, color: 'bg-emerald-600' },
-                                { name: 'AgroRoot', sector: 'AGRITECH | SERIES B', score: 94, color: 'bg-indigo-600' },
+                                { name: 'TechNova Solutions', sector: 'FINTECH | SERIES A', score: 78, color: 'bg-accent' },
+                                { name: 'CyberShield', sector: 'SECURITY | SEED', score: 62, color: 'bg-emerald-500' },
+                                { name: 'AgroRoot', sector: 'AGRITECH | SERIES B', score: 94, color: 'bg-accent' },
                             ].map((s, idx) => (
-                                <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5 hover:shadow-md transition-all cursor-pointer group">
+                                <div key={idx} className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm space-y-5 hover:shadow-md transition-all cursor-pointer group">
                                     <div className="flex items-center gap-4">
-                                        <div className={`size-12 ${idx === 1 ? 'bg-slate-800' : 'bg-[#1e1b4b]'} rounded-xl flex items-center justify-center text-white font-black text-sm`}>
+                                        <div className={`size-12 ${idx === 1 ? 'bg-slate-800' : 'bg-accent/20 text-accent'} rounded-xl flex items-center justify-center text-white font-black text-sm`}>
                                             {idx === 0 && <Rocket size={24} />}
-                                            {idx === 1 && <ShieldAlert size={24} />}
+                                            {idx === 1 && <ShieldAlert size={24} className="text-white" />}
                                             {idx === 2 && <Activity size={24} />}
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-slate-800 text-md group-hover:text-indigo-600 transition-colors">{s.name}</h4>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none mt-1">{s.sector}</p>
+                                            <h4 className="font-black text-white text-md group-hover:text-accent transition-colors">{s.name}</h4>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">{s.sector}</p>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <div className="flex justify-between text-[11px] font-black uppercase tracking-widest px-0.5">
-                                            <span className="text-slate-400">Perf. Score</span>
-                                            <span className="text-slate-800">{s.score}/100</span>
+                                            <span className="text-slate-500">Perf. Score</span>
+                                            <span className="text-white">{s.score}/100</span>
                                         </div>
-                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
                                             <div className={`h-full ${s.color}`} style={{ width: `${s.score}%` }} />
                                         </div>
                                     </div>
