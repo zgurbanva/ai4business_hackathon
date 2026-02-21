@@ -3,28 +3,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { 
-  LayoutDashboard, 
-  Rocket, 
-  Briefcase, 
-  Users, 
-  FileText, 
-  Shield, 
-  Settings, 
-  Search, 
+import {
+  LayoutDashboard,
+  Rocket,
+  Briefcase,
+  Users,
+  FileText,
+  Shield,
+  Settings,
+  Search,
   Bell,
   TrendingUp,
   DollarSign,
   Star,
-  Activity
+  Activity,
+  HelpCircle,
+  Building2
 } from 'lucide-react';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -69,7 +71,27 @@ const regionalIntensityData = [
   { region: 'Quba', intensity: 20 },
 ];
 
+import Header from '../components/Header';
+import dashboardService, { KpiDashboard } from '../services/dashboard';
+import { useState, useEffect } from 'react';
+
 export default function GovAdminDashboard() {
+  const [kpis, setKpis] = useState<KpiDashboard | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchKpis = async () => {
+      try {
+        const data = await dashboardService.getKpis();
+        setKpis(data);
+      } catch (err) {
+        console.error('Failed to fetch KPIs', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchKpis();
+  }, []);
   return (
     <div className="min-h-screen bg-background-dark flex text-slate-100">
       {/* Sidebar */}
@@ -80,7 +102,7 @@ export default function GovAdminDashboard() {
           </div>
           <div>
             <h1 className="font-black text-lg leading-none">GovAdmin</h1>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Ecosystem KPI Portal</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Reporting & KPI Dashboard</p>
           </div>
         </div>
 
@@ -89,9 +111,13 @@ export default function GovAdminDashboard() {
             <LayoutDashboard size={18} />
             Dashboard
           </Link>
+          <Link to="/it-registry" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
+            <Building2 size={18} />
+            IT Registry
+          </Link>
           <Link to="/register" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
             <Rocket size={18} />
-            Startups
+            Startup ID
           </Link>
           <Link to="/program" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
             <Briefcase size={18} />
@@ -100,6 +126,14 @@ export default function GovAdminDashboard() {
           <Link to="/investor" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
             <Users size={18} />
             Investors
+          </Link>
+          <Link to="/security" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
+            <Shield size={18} />
+            Security Portal
+          </Link>
+          <Link to="/support" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
+            <HelpCircle size={18} />
+            Support
           </Link>
           <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg font-bold text-sm transition-all">
             <FileText size={18} />
@@ -133,39 +167,18 @@ export default function GovAdminDashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        {/* Top Header */}
-        <header className="h-16 bg-slate-900 border-b border-slate-800 px-8 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
-            <span>Analytics</span>
-            <span className="text-slate-700">/</span>
-            <span className="text-white font-bold">Ecosystem Dashboard</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search data points..."
-                className="bg-slate-800 h-10 pl-10 pr-4 rounded-lg text-sm w-64 text-white focus:ring-2 focus:ring-accent outline-none transition-all"
-              />
-            </div>
-            <button className="relative text-slate-500 hover:text-accent transition-colors">
-              <Bell size={20} />
-              <div className="absolute -top-1 -right-1 size-2 bg-rose-500 rounded-full border-2 border-slate-900" />
-            </button>
-          </div>
-        </header>
+        <Header showSearch searchPlaceholder="Search data points..." />
 
         <div className="p-8 space-y-8">
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { label: 'Total Startups', value: '1,240', change: '+5.2%', icon: <Rocket className="text-accent" size={20} />, bg: 'bg-accent/10' },
-              { label: 'Total Funding', value: '$450M', change: '+14.8%', icon: <DollarSign className="text-emerald-400" size={20} />, bg: 'bg-emerald-500/10' },
-              { label: 'Avg. Success Score', value: '8.2/10', change: '+0.3%', icon: <Star className="text-amber-400" size={20} />, bg: 'bg-amber-500/10' },
-              { label: 'Sector Growth Index', value: '+12.5%', change: '-1.2%', icon: <TrendingUp className="text-indigo-400" size={20} />, bg: 'bg-indigo-500/10', negative: true },
+              { label: 'Total Startups', value: kpis?.total_startups?.toLocaleString() || '0', change: '+5.2%', icon: <Rocket className="text-accent" size={20} />, bg: 'bg-accent/10' },
+              { label: 'Active Programs', value: kpis?.total_programs?.toLocaleString() || '0', change: '+2', icon: <DollarSign className="text-emerald-400" size={20} />, bg: 'bg-emerald-500/10' },
+              { label: 'Avg. Success Score', value: kpis?.average_startup_score ? `${kpis.average_startup_score}/100` : 'N/A', change: '+0.3%', icon: <Star className="text-amber-400" size={20} />, bg: 'bg-amber-500/10' },
+              { label: 'Investor Interests', value: kpis?.investor_interest_count?.toLocaleString() || '0', change: '+12%', icon: <TrendingUp className="text-indigo-400" size={20} />, bg: 'bg-indigo-500/10' },
             ].map((stat, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -176,12 +189,12 @@ export default function GovAdminDashboard() {
                   <div className={`size-10 ${stat.bg} rounded-lg flex items-center justify-center`}>
                     {stat.icon}
                   </div>
-                  <span className={`text-xs font-bold ${stat.negative ? 'text-rose-400' : 'text-emerald-400'}`}>
-                    {stat.change} {stat.negative ? '↘' : '↗'}
+                  <span className={`text-xs font-bold text-emerald-400`}>
+                    {stat.change} ↗
                   </span>
                 </div>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                <h4 className="text-2xl font-black text-white">{stat.value}</h4>
+                <h4 className="text-2xl font-black text-white">{loading ? '...' : stat.value}</h4>
               </motion.div>
             ))}
           </div>
@@ -201,29 +214,29 @@ export default function GovAdminDashboard() {
                   <AreaChart data={growthData}>
                     <defs>
                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#573f9d" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#573f9d" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#573f9d" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="#573f9d" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} 
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
                       dy={10}
                     />
                     <YAxis hide />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #1e293b', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="#573f9d" 
-                      strokeWidth={3} 
-                      fillOpacity={1} 
-                      fill="url(#colorValue)" 
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#573f9d"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorValue)"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -231,12 +244,16 @@ export default function GovAdminDashboard() {
             </div>
 
             <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-sm">
-              <h3 className="font-bold text-white mb-8">Stage Distribution</h3>
+              <h3 className="font-bold text-white mb-8">Trust Distribution</h3>
               <div className="h-[200px] relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={stageData}
+                      data={[
+                        { name: 'Low Trust', value: kpis?.trust_distribution.low || 0, color: '#332069' },
+                        { name: 'Medium Trust', value: kpis?.trust_distribution.medium || 0, color: '#573f9d' },
+                        { name: 'High Trust', value: kpis?.trust_distribution.high || 0, color: '#94a3b8' },
+                      ]}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -244,25 +261,33 @@ export default function GovAdminDashboard() {
                       paddingAngle={5}
                       dataKey="value"
                     >
-                      {stageData.map((entry, index) => (
+                      {[
+                        { color: '#332069' },
+                        { color: '#573f9d' },
+                        { color: '#94a3b8' },
+                      ].map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-2xl font-black text-white">1.2K</span>
+                  <span className="text-2xl font-black text-white">{kpis?.total_startups || 0}</span>
                   <span className="text-[10px] font-bold text-slate-500 uppercase">Total Entrants</span>
                 </div>
               </div>
               <div className="mt-8 space-y-3">
-                {stageData.map((item, idx) => (
+                {[
+                  { name: 'Low Trust', value: kpis?.trust_distribution.low || 0, color: '#332069' },
+                  { name: 'Medium Trust', value: kpis?.trust_distribution.medium || 0, color: '#573f9d' },
+                  { name: 'High Trust', value: kpis?.trust_distribution.high || 0, color: '#94a3b8' },
+                ].map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <div className="size-2 rounded-full" style={{ backgroundColor: item.color }} />
                       <span className="text-xs font-bold text-slate-400">{item.name}</span>
                     </div>
-                    <span className="text-xs font-black text-white">{item.value}%</span>
+                    <span className="text-xs font-black text-white">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -287,22 +312,22 @@ export default function GovAdminDashboard() {
               </div>
               <div className="h-[250px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={sectorDistributionData}>
+                  <BarChart data={kpis?.sector_distribution.map(s => ({ name: s.sector, value: s.count, color: '#573f9d' })) || []}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} 
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
                     />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
-                    <Tooltip 
+                    <Tooltip
                       cursor={{ fill: '#1e293b' }}
                       contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: '1px solid #1e293b', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.5)' }}
                     />
                     <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                      {sectorDistributionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {(kpis?.sector_distribution || []).map((_, index) => (
+                        <Cell key={`cell-${index}`} fill="#573f9d" />
                       ))}
                     </Bar>
                   </BarChart>
@@ -323,7 +348,7 @@ export default function GovAdminDashboard() {
                       <span className="text-xs font-black text-accent">{item.intensity}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                      <motion.div 
+                      <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${item.intensity}%` }}
                         transition={{ duration: 1, delay: idx * 0.05 }}

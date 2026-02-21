@@ -3,16 +3,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { 
-  Rocket, 
-  Compass, 
-  Activity, 
-  Fingerprint, 
-  BrainCircuit, 
-  Wallet, 
-  LayoutDashboard, 
-  ShieldCheck, 
-  Menu, 
+import {
+  Rocket,
+  Compass,
+  Activity,
+  Fingerprint,
+  BrainCircuit,
+  Wallet,
+  LayoutDashboard,
+  ShieldCheck,
+  Menu,
   Bot,
   Share2,
   Mail,
@@ -20,52 +20,30 @@ import {
   MapPin,
   Phone,
   Shield,
-  Languages
+  Languages,
+  Building2,
+  UserPlus,
+  LogIn,
+  Users,
+  ArrowRight
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
+import Header from '../components/Header';
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background-dark text-slate-100">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full bg-slate-900/80 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="bg-accent p-1.5 rounded-lg text-white">
-                <Bot size={24} />
-              </div>
-              <span className="text-xl font-extrabold tracking-tight text-white uppercase">
-                Innovation <span className="text-accent">Azerbaijan</span>
-              </span>
-            </div>
-            
-            <nav className="hidden md:flex items-center gap-8">
-              <Link to="/admin" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors">Ecosystem</Link>
-              <Link to="/investor" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors">Analytics</Link>
-              <Link to="/program" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors">Resources</Link>
-              <div className="h-4 w-px bg-slate-700"></div>
-              <Link to="/login" className="text-sm font-semibold text-accent hover:opacity-80 transition-opacity">Login</Link>
-              <Link to="/register" className="bg-accent text-white text-sm font-bold px-5 py-2.5 rounded-lg hover:bg-accent/90 transition-all shadow-sm">
-                Register Startup
-              </Link>
-            </nav>
-            
-            <div className="md:hidden">
-              <Menu className="text-accent" size={28} />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main>
         {/* Hero Section */}
         <section className="relative min-h-[700px] flex items-center overflow-hidden ai-network-bg py-24 px-4">
           <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'radial-gradient(circle at 50% 50%, #573f9d 0%, transparent 70%)' }}></div>
-          
+
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
@@ -75,17 +53,17 @@ export default function LandingPage() {
                 <Activity size={14} className="animate-pulse text-accent" />
                 <span className="text-[10px] font-bold tracking-[0.2em] uppercase">National Innovation Strategy 2026</span>
               </div>
-              
+
               <h1 className="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight">
                 The Future of <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60">Azerbaijan's</span> <br />
                 <span className="text-accent">Innovation</span>
               </h1>
-              
+
               <p className="text-xl md:text-2xl text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
                 AI-Powered Startup Registry, Investment Intelligence & Ecosystem Analytics for the next generation of founders.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
                 <Link to="/register" className="bg-accent text-white h-16 px-10 rounded-xl font-black text-lg hover:scale-105 transition-all shadow-2xl shadow-accent/40 flex items-center justify-center gap-3">
                   Register Startup
@@ -98,7 +76,7 @@ export default function LandingPage() {
               </div>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -108,13 +86,13 @@ export default function LandingPage() {
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                   <Activity size={120} className="text-accent" />
                 </div>
-                
+
                 <div className="relative z-10">
                   <h3 className="text-white font-bold text-xl mb-6 flex items-center gap-2">
                     <Activity className="text-accent" size={24} />
                     Real-time Ecosystem Health
                   </h3>
-                  
+
                   <div className="space-y-6">
                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
                       <div className="flex justify-between text-xs text-slate-400 mb-2 font-bold uppercase tracking-wider">
@@ -122,7 +100,7 @@ export default function LandingPage() {
                         <span className="text-accent">84%</span>
                       </div>
                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                        <motion.div 
+                        <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: '84%' }}
                           transition={{ duration: 1, delay: 0.5 }}
@@ -130,14 +108,14 @@ export default function LandingPage() {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
                       <div className="flex justify-between text-xs text-slate-400 mb-2 font-bold uppercase tracking-wider">
                         <span>AI Integration Score</span>
                         <span className="text-accent">62%</span>
                       </div>
                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                        <motion.div 
+                        <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: '62%' }}
                           transition={{ duration: 1, delay: 0.7 }}
@@ -145,14 +123,14 @@ export default function LandingPage() {
                         />
                       </div>
                     </div>
-                    
+
                     <div className="bg-white/5 p-4 rounded-xl border border-white/10">
                       <div className="flex justify-between text-xs text-slate-400 mb-2 font-bold uppercase tracking-wider">
                         <span>Funding Liquidity</span>
                         <span className="text-accent">75%</span>
                       </div>
                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                        <motion.div 
+                        <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: '75%' }}
                           transition={{ duration: 1, delay: 0.9 }}
@@ -187,6 +165,7 @@ export default function LandingPage() {
           </div>
         </section>
 
+
         {/* Features Section */}
         <section className="py-24 bg-background-dark px-4">
           <div className="max-w-7xl mx-auto">
@@ -196,13 +175,18 @@ export default function LandingPage() {
                 Empowering the Azerbaijani ecosystem with state-of-the-art AI integration and secure institutional-grade data management.
               </p>
             </div>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
                 {
                   icon: <Fingerprint size={32} />,
                   title: 'Startup ID & Registry',
                   desc: 'A digital passport for companies to streamline government interactions, tax incentives, and grant applications.'
+                },
+                {
+                  icon: <Building2 size={32} />,
+                  title: 'IT Companies Registry',
+                  desc: 'Unified management of resident and non-resident IT entities with centralized compliance tracking.'
                 },
                 {
                   icon: <BrainCircuit size={32} />,
@@ -221,11 +205,11 @@ export default function LandingPage() {
                 },
                 {
                   icon: <ShieldCheck size={32} />,
-                  title: 'Secure Infrastructure',
-                  desc: 'Institutional-grade security and data residency protocols ensuring the safety of sensitive national ecosystem data.'
+                  title: 'Cyber Security Portal',
+                  desc: 'Institutional-grade RBAC, AES-256 encryption, and real-time incident management for national data protection.'
                 }
               ].map((feature, idx) => (
-                <motion.div 
+                <motion.div
                   key={idx}
                   whileHover={{ y: -5 }}
                   className="bg-slate-900 p-8 rounded-xl border border-slate-800 shadow-sm hover:shadow-md transition-all group"
@@ -237,7 +221,7 @@ export default function LandingPage() {
                   <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
                 </motion.div>
               ))}
-              
+
               {/* Secondary CTA Card */}
               <div className="bg-accent p-8 rounded-xl border border-accent flex flex-col justify-center items-center text-center group">
                 <h3 className="text-xl font-bold text-white mb-4">Ready to Innovate?</h3>
@@ -252,9 +236,9 @@ export default function LandingPage() {
         {/* Join CTA Section */}
         <section className="py-20 px-4">
           <div className="max-w-5xl mx-auto bg-slate-900 rounded-2xl overflow-hidden relative shadow-2xl border border-slate-800">
-            <div 
-              className="absolute inset-0 opacity-10" 
-              style={{ 
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
                 backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDsKv6JaVqjksoA2mBhDaip6a4fKIbIi6cEOc3417qpELj8tuZ6mhMN2JqMV4qDvKINZLhnJGAbMOMwReUoIEIcZn6cqXsTb2wwDNnQZ7ut9IEMne0K8HtBS4bzQ6V29EURfssJya79P_5HngkG6rjUY1Ckox6bQ_LoGMoT7yXrrprtDY4mFFcj9Ve2Kk7xbwRiIgBIlX3ZNbVM0egH0hTcp7c_m4ZYaz7oFDRw6nuTQS83fnJXQHkqRIRCq70pa1cfK2Ip1VQeKO8W")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
@@ -292,17 +276,19 @@ export default function LandingPage() {
                 <a href="#" className="text-slate-400 hover:text-white transition-colors"><Globe size={20} /></a>
               </div>
             </div>
-            
+
             <div className="flex flex-col gap-4">
               <h4 className="text-white font-bold uppercase tracking-widest text-sm">Platform</h4>
               <nav className="flex flex-col gap-2">
-                <a href="#" className="hover:text-accent transition-colors">Ecosystem Map</a>
-                <a href="#" className="hover:text-accent transition-colors">Startup Directory</a>
-                <a href="#" className="hover:text-accent transition-colors">Analytics Portal</a>
-                <a href="#" className="hover:text-accent transition-colors">Resource Center</a>
+                <Link to="/admin" className="hover:text-accent transition-colors">Ecosystem Map</Link>
+                <Link to="/it-registry" className="hover:text-accent transition-colors">IT Companies Registry</Link>
+                <Link to="/register" className="hover:text-accent transition-colors">Startup Registry</Link>
+                <Link to="/investor" className="hover:text-accent transition-colors">Analytics Portal</Link>
+                <Link to="/security" className="hover:text-accent transition-colors">Security Command Center</Link>
+                <Link to="/support" className="hover:text-accent transition-colors">Support Center</Link>
               </nav>
             </div>
-            
+
             <div className="flex flex-col gap-4">
               <h4 className="text-white font-bold uppercase tracking-widest text-sm">Institutional</h4>
               <nav className="flex flex-col gap-2">
@@ -312,7 +298,7 @@ export default function LandingPage() {
                 <a href="#" className="hover:text-accent transition-colors">API Integration</a>
               </nav>
             </div>
-            
+
             <div className="flex flex-col gap-4">
               <h4 className="text-white font-bold uppercase tracking-widest text-sm">Contact</h4>
               <div className="flex items-start gap-3">
@@ -329,7 +315,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
             <p className="text-xs text-slate-500">© 2024 Innovation Management Platform. All Rights Reserved.</p>
             <div className="flex gap-8">

@@ -4,20 +4,24 @@
  */
 
 import { useState } from 'react';
-import { 
-  Building2, 
-  MapPin, 
-  Users, 
-  DollarSign, 
-  ArrowRight, 
-  BarChart3, 
-  CheckCircle2, 
+import {
+  Building2,
+  MapPin,
+  Users,
+  DollarSign,
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
   HelpCircle,
   Image as ImageIcon,
   QrCode
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
+
+import Header from '../components/Header';
+import startupService from '../services/startup';
+import authService from '../services/auth';
 
 export default function StartupRegistration() {
   const [isRegistered, setIsRegistered] = useState(false);
@@ -33,13 +37,34 @@ export default function StartupRegistration() {
     funding: ''
   });
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!formData.name) return;
     setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
+
+    try {
+      const user = authService.getCurrentUser();
+
+      const payload = {
+        name: formData.name,
+        description: 'Startup registered via platform.', // Default description
+        sector: formData.sector || 'Other',
+        stage: formData.stage.toLowerCase().replace(' ', '_'),
+        city: formData.location || 'Baku',
+        team_size: parseInt(formData.teamSize) || 1,
+        founders: [{ full_name: user?.full_name || 'Founder' }],
+        traction: {
+          monthly_revenue_azn: parseFloat(formData.revenue) || 0
+        }
+      };
+
+      await startupService.register(payload);
       setIsRegistered(true);
-    }, 2000);
+    } catch (err) {
+      console.error('Registration failed', err);
+      // alert('Registration failed. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const renderAnalysisContent = () => {
@@ -63,7 +88,7 @@ export default function StartupRegistration() {
                     <span className="text-slate-900">{item.value}</span>
                   </div>
                   <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: item.value }}
                       className={`h-full ${item.color}`}
@@ -100,7 +125,7 @@ export default function StartupRegistration() {
                 <span className="text-slate-900">72%</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: '72%' }}
                   className="h-full bg-blue-500"
@@ -142,43 +167,27 @@ export default function StartupRegistration() {
 
   return (
     <div className="min-h-screen bg-background-dark text-slate-100 flex flex-col">
-      {/* Header */}
-      <header className="bg-slate-900 border-b border-slate-800 px-8 h-16 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="bg-accent p-1.5 rounded text-white">
-            <Building2 size={20} />
-          </div>
-          <span className="font-bold text-white text-lg">Institutional Portal</span>
-        </div>
-        <nav className="flex items-center gap-8">
-          <Link to="/" className="text-sm font-medium text-slate-400 hover:text-accent transition-colors">Dashboard</Link>
-          <Link to="/program" className="text-sm font-medium text-slate-400 hover:text-accent transition-colors">Resources</Link>
-          <a href="#" className="text-sm font-medium text-slate-400 hover:text-accent transition-colors">Support</a>
-          <div className="size-8 rounded-full bg-slate-800 overflow-hidden border border-slate-700">
-            <img src="https://picsum.photos/seed/user1/100/100" alt="User" referrerPolicy="no-referrer" />
-          </div>
-        </nav>
-      </header>
+      <Header />
 
       <main className="flex-1 max-w-7xl mx-auto w-full p-8 grid lg:grid-cols-[1fr,400px] gap-8">
         {/* Form Section */}
         <div className="space-y-8">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <h1 className="text-3xl font-black text-white mb-2">
-              {isRegistered ? 'Institutional Dashboard' : 'Startup Registration'}
+              {isRegistered ? 'Institutional Dashboard' : 'Startup ID Registration'}
             </h1>
             <p className="text-slate-400">
-              {isRegistered 
-                ? 'Manage your startup credentials and access advanced AI diagnostic tools.' 
-                : 'Complete the institutional profile to unlock diagnostic analysis and resource allocation.'}
+              {isRegistered
+                ? 'Manage your centralized Startup ID profile and track your growth stages.'
+                : 'Complete the institutional profile to generate your unique Startup ID and unlock diagnostic analysis.'}
             </p>
           </motion.div>
 
           {!isRegistered ? (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-sm space-y-6"
@@ -186,21 +195,21 @@ export default function StartupRegistration() {
               <div className="grid gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-300">Startup Name</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="e.g. Nexus Dynamics"
                     className="w-full h-12 px-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-accent focus:border-transparent transition-all outline-none"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-300">Industry Sector</label>
-                    <select 
+                    <select
                       className="w-full h-12 px-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-accent outline-none"
-                      onChange={(e) => setFormData({...formData, sector: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, sector: e.target.value })}
                     >
                       <option value="">Select Sector</option>
                       <option value="FinTech">FinTech</option>
@@ -213,12 +222,12 @@ export default function StartupRegistration() {
                     <label className="text-sm font-bold text-slate-300">Location</label>
                     <div className="relative">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="HQ City, Country"
                         className="w-full h-12 pl-11 pr-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-accent outline-none"
                         value={formData.location}
-                        onChange={(e) => setFormData({...formData, location: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       />
                     </div>
                   </div>
@@ -237,12 +246,11 @@ export default function StartupRegistration() {
                     {['Idea', 'MVP', 'Seed', 'Series A'].map((stage) => (
                       <button
                         key={stage}
-                        onClick={() => setFormData({...formData, stage})}
-                        className={`h-12 rounded-lg border font-medium transition-all ${
-                          formData.stage === stage 
-                          ? 'bg-accent/20 border-accent text-accent' 
+                        onClick={() => setFormData({ ...formData, stage })}
+                        className={`h-12 rounded-lg border font-medium transition-all ${formData.stage === stage
+                          ? 'bg-accent/20 border-accent text-accent'
                           : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
-                        }`}
+                          }`}
                       >
                         {stage}
                       </button>
@@ -253,24 +261,24 @@ export default function StartupRegistration() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-300">Team Size</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="1-500"
                       className="w-full h-12 px-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-accent outline-none"
                       value={formData.teamSize}
-                      onChange={(e) => setFormData({...formData, teamSize: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, teamSize: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-300">Annual Revenue (USD)</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="0.00"
                         className="w-full h-12 pl-8 pr-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-accent outline-none"
                         value={formData.revenue}
-                        onChange={(e) => setFormData({...formData, revenue: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, revenue: e.target.value })}
                       />
                     </div>
                   </div>
@@ -280,18 +288,18 @@ export default function StartupRegistration() {
                   <label className="text-sm font-bold text-slate-300">Total Funding Raised</label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Total investment to date"
                       className="w-full h-12 pl-8 pr-4 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-accent outline-none"
                       value={formData.funding}
-                      onChange={(e) => setFormData({...formData, funding: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, funding: e.target.value })}
                     />
                   </div>
                 </div>
               </div>
 
-              <button 
+              <button
                 onClick={handleRegister}
                 disabled={isAnalyzing}
                 className="w-full h-14 bg-accent text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-accent/90 transition-all shadow-lg shadow-accent/10 disabled:opacity-50"
@@ -310,7 +318,7 @@ export default function StartupRegistration() {
               </button>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               className="space-y-8"
@@ -369,10 +377,10 @@ export default function StartupRegistration() {
             <div className="absolute top-4 left-4 bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
               {isRegistered ? 'Institutional ID' : 'Live Preview'}
             </div>
-            
+
             <div className="mt-12 space-y-6">
               <h3 className="text-xl font-bold">{isRegistered ? 'Verified Credential' : 'Registration Preview'}</h3>
-              
+
               <div className="bg-white rounded-xl p-6 text-slate-900 shadow-2xl relative">
                 {isRegistered && (
                   <div className="absolute -top-3 -right-3 bg-emerald-500 text-white p-1.5 rounded-full border-4 border-white shadow-lg">
@@ -388,7 +396,7 @@ export default function StartupRegistration() {
                     <p className="text-sm font-black">AZ - ST - 0001</p>
                   </div>
                 </div>
-                
+
                 <div className="mb-6">
                   <h4 className="text-2xl font-black">{formData.name || '[Startup Name]'}</h4>
                   <p className="text-slate-500 text-sm font-medium">
@@ -414,20 +422,19 @@ export default function StartupRegistration() {
 
           <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm space-y-6">
             <div className="flex justify-between items-center">
-              <h4 className="font-bold text-white">Diagnostic Analysis</h4>
+              <h4 className="font-bold text-white">Startup ID Stage Tracking</h4>
               <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase">AI Engine</span>
             </div>
-            
+
             <div className="flex border-b border-slate-800">
               {(['swot', 'market', 'financial'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveAnalysis(tab)}
-                  className={`flex-1 pb-3 text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeAnalysis === tab 
-                    ? 'text-accent border-b-2 border-accent' 
+                  className={`flex-1 pb-3 text-[10px] font-black uppercase tracking-widest transition-all ${activeAnalysis === tab
+                    ? 'text-accent border-b-2 border-accent'
                     : 'text-slate-500 hover:text-slate-300'
-                  }`}
+                    }`}
                 >
                   {tab}
                 </button>
@@ -446,7 +453,7 @@ export default function StartupRegistration() {
                 </span>
               </div>
               <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: formData.name ? (isRegistered ? '84%' : '72%') : '0%' }}
                   className="h-full bg-accent"
