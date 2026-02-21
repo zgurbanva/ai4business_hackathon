@@ -22,7 +22,7 @@ import {
     X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
     showSearch?: boolean;
@@ -38,6 +38,7 @@ export default function Header({
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -50,10 +51,21 @@ export default function Header({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Close dropdown on navigation
+    useEffect(() => {
+        setIsProfileOpen(false);
+    }, [location.pathname]);
+
+    const handleProfileSwitch = (path: string, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate(path);
+    };
+
     const profiles = [
         { title: 'Gov Admin', icon: <Shield size={16} />, link: '/admin' },
-        { title: 'Investor', icon: <Wallet size={16} />, link: '/investor' },
-        { title: 'Startup', icon: <Rocket size={16} />, link: '/register' },
+        { title: 'Investor', icon: <Wallet size={16} />, link: '/investor-profile' },
+        { title: 'Startup', icon: <Rocket size={16} />, link: '/startup-onboarding' },
         { title: 'Mentor', icon: <Users size={16} />, link: '/mentor' },
     ];
 
@@ -91,7 +103,7 @@ export default function Header({
                                 <>
                                     <Link to="/admin" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Ecosystem</Link>
                                     <Link to="/events" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Events</Link>
-                                    <Link to="/investor" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Analytics</Link>
+                                    <Link to="/analytics" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Analytics</Link>
                                     <Link to="/program" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Resources</Link>
                                     <Link to="/support" className="text-sm font-semibold text-slate-300 hover:text-accent transition-colors text-nowrap">Support</Link>
                                 </>
@@ -113,97 +125,93 @@ export default function Header({
 
                     {/* User Section */}
                     <div className="flex items-center gap-4 sm:gap-6">
-                        {!authService.isAuthenticated() ? (
+                        {/* Role Switcher (Avatar) - Always Visible for Demo/Hackathon */}
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
+                                title="Role Switcher"
+                            >
+                                <div className="size-8 rounded-full bg-gradient-to-tr from-accent to-purple-500 flex items-center justify-center text-white ring-2 ring-slate-800 group-hover:ring-accent/50 transition-all overflow-hidden shadow-lg shadow-accent/20">
+                                    <img src="https://picsum.photos/seed/user/100/100" alt="Avatar" referrerPolicy="no-referrer" />
+                                </div>
+                                <ChevronDown size={14} className={`text-slate-400 group-hover:text-white transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isProfileOpen && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                        transition={{ duration: 0.2, ease: "easeOut" }}
+                                        className="absolute right-0 mt-3 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl"
+                                    >
+                                        <div className="p-4 border-b border-slate-800 bg-white/5">
+                                            <p className="text-sm font-bold text-white">
+                                                {authService.isAuthenticated() ? authService.getCurrentUser()?.full_name : 'Guest User'}
+                                            </p>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">
+                                                {authService.isAuthenticated() ? `${authService.getCurrentUser()?.role} Profile` : 'Verified Profile Preview'}
+                                            </p>
+                                        </div>
+
+                                        <div className="p-2">
+                                            <p className="px-3 pt-2 pb-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">Switch Perspective</p>
+                                            {profiles.map((profile, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={(e) => handleProfileSwitch(profile.link, e)}
+                                                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-accent/10 hover:translate-x-1 transition-all group text-left"
+                                                >
+                                                    <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-accent group-hover:bg-accent/20 transition-colors">
+                                                        {profile.icon}
+                                                    </div>
+                                                    {profile.title}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {authService.isAuthenticated() && (
+                                            <div className="p-2 border-t border-slate-800 bg-white/5">
+                                                <Link
+                                                    to="/settings"
+                                                    onClick={() => setIsProfileOpen(false)}
+                                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+                                                >
+                                                    <Settings size={16} />
+                                                    Account Settings
+                                                </Link>
+                                                <button
+                                                    onClick={() => {
+                                                        setIsProfileOpen(false);
+                                                        authService.logout();
+                                                        navigate('/login');
+                                                    }}
+                                                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all w-full text-left"
+                                                >
+                                                    <LogOut size={16} />
+                                                    Logout Session
+                                                </button>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {!authService.isAuthenticated() && (
                             <div className="flex items-center gap-3">
-                                <Link to="/login" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Sign In</Link>
+                                <Link to="/login" className="hidden sm:block text-sm font-bold text-slate-300 hover:text-white transition-colors">Sign In</Link>
                                 <Link to="/register" className="h-10 px-5 bg-accent text-white rounded-xl text-sm font-black flex items-center justify-center hover:bg-accent/90 transition-all shadow-lg shadow-accent/20">
                                     Get Started
                                 </Link>
                             </div>
-                        ) : (
-                            <>
-                                <div className="hidden sm:flex items-center gap-4">
-                                    <button className="text-slate-400 hover:text-white transition-colors">
-                                        <Bell size={20} />
-                                    </button>
-                                </div>
-
-                                <div className="h-4 w-px bg-slate-700 hidden sm:block"></div>
-
-                                <div className="relative" ref={dropdownRef}>
-                                    <button
-                                        onClick={() => setIsProfileOpen(!isProfileOpen)}
-                                        className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-white/5 transition-all border border-transparent hover:border-white/10"
-                                    >
-                                        <div className="size-8 rounded-full bg-gradient-to-tr from-accent to-purple-500 flex items-center justify-center text-white ring-2 ring-slate-800 group-hover:ring-accent/50 transition-all overflow-hidden shadow-lg shadow-accent/20">
-                                            <img src="https://picsum.photos/seed/user/100/100" alt="Avatar" referrerPolicy="no-referrer" />
-                                        </div>
-                                        <ChevronDown size={14} className={`text-slate-400 group-hover:text-white transition-transform duration-300 ${isProfileOpen ? 'rotate-180' : ''}`} />
-                                    </button>
-
-                                    <AnimatePresence>
-                                        {isProfileOpen && (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                                transition={{ duration: 0.2, ease: "easeOut" }}
-                                                className="absolute right-0 mt-3 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden backdrop-blur-xl"
-                                            >
-                                                {/* Profile Switcher Content... (existing) */}
-                                                <div className="p-4 border-b border-slate-800 bg-white/5">
-                                                    <p className="text-sm font-bold text-white">Ecosystem User</p>
-                                                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Verified Profile</p>
-                                                </div>
-
-                                                <div className="p-2">
-                                                    <p className="px-3 pt-2 pb-1 text-[10px] font-black text-slate-500 uppercase tracking-widest">Switch Profile</p>
-                                                    {profiles.map((profile, idx) => (
-                                                        <Link
-                                                            key={idx}
-                                                            to={profile.link}
-                                                            onClick={() => setIsProfileOpen(false)}
-                                                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-accent/10 hover:translate-x-1 transition-all group"
-                                                        >
-                                                            <div className="size-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-accent group-hover:bg-accent/20 transition-colors">
-                                                                {profile.icon}
-                                                            </div>
-                                                            {profile.title}
-                                                        </Link>
-                                                    ))}
-                                                </div>
-
-                                                <div className="p-2 border-t border-slate-800 bg-white/5">
-                                                    <Link
-                                                        to="/settings"
-                                                        onClick={() => setIsProfileOpen(false)}
-                                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all"
-                                                    >
-                                                        <Settings size={16} />
-                                                        Account Settings
-                                                    </Link>
-                                                    <button
-                                                        onClick={() => {
-                                                            setIsProfileOpen(false);
-                                                            authService.logout();
-                                                            navigate('/login');
-                                                        }}
-                                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all w-full text-left"
-                                                    >
-                                                        <LogOut size={16} />
-                                                        Logout Session
-                                                    </button>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-
-                                <button className="lg:hidden text-accent">
-                                    <Menu size={28} />
-                                </button>
-                            </>
                         )}
+
+                        <button className="lg:hidden text-accent">
+                            <Menu size={28} />
+                        </button>
                     </div>
                 </div>
             </div>

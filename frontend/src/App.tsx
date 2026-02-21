@@ -39,6 +39,8 @@ export default function App() {
         <Route path="/program" element={<ResourcesPage />} />
         <Route path="/login" element={<AuthPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/analytics" element={<InvestorLayout><InvestmentModule /></InvestorLayout>} />
+        <Route path="/reports" element={<InvestorLayout><InvestmentModule /></InvestorLayout>} />
         <Route path="/it-registry" element={<InvestorLayout><ITRegistry noHeader /></InvestorLayout>} />
         <Route path="/security" element={<SecurityPortal />} />
         <Route path="/mentor" element={<MentorDashboard />} />
