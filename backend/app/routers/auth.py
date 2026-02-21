@@ -1,16 +1,13 @@
-from datetime import timedelta
+# app/routers/auth.py
 
-import ulid
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import timedelta
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import models, schemas
-from app.auth import (
-    create_access_token,
-    get_current_user,
-    hash_password,
-    verify_password,
-)
+from app.auth import create_access_token, get_current_user, hash_password, verify_password
 from app.config import settings
 from app.database import get_db
 
@@ -24,7 +21,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="Email already exists")
 
     user = models.User(
-        id=f"usr_{ulid.new()}",
+        id=f"usr_{uuid.uuid4().hex}",
         full_name=payload.full_name,
         email=payload.email,
         hashed_password=hash_password(payload.password),
@@ -38,6 +35,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
         {"sub": user.id},
         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
+
     return schemas.AuthResponse(
         access_token=token,
         token_type="bearer",
@@ -56,6 +54,7 @@ def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
         {"sub": user.id},
         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     )
+
     return schemas.AuthResponse(
         access_token=token,
         token_type="bearer",

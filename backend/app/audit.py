@@ -1,7 +1,7 @@
 import json
+import uuid
 from sqlalchemy.orm import Session
 from app import models
-
 
 def record_audit(
     db: Session,
@@ -11,9 +11,8 @@ def record_audit(
     entity_id: str,
     metadata: dict = None,
 ):
-    import ulid
     log = models.AuditLog(
-        id=f"aud_{ulid.new()}",
+        id=f"aud_{uuid.uuid4().hex}",
         actor_user_id=actor.id,
         actor_role=actor.role,
         action=action,
@@ -23,3 +22,4 @@ def record_audit(
     )
     db.add(log)
     db.commit()
+    

@@ -1,6 +1,6 @@
 from typing import Optional
 
-import ulid
+import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -34,7 +34,7 @@ def create_program(
     current_user: models.User = Depends(require_roles("iria_admin")),
 ):
     program = models.Program(
-        id=f"prg_{ulid.new()}",
+        id=f"prg_{uuid.uuid4().hex}",
         title=payload.title,
         type=payload.type,
         description=payload.description,

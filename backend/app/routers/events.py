@@ -1,11 +1,11 @@
 from typing import Optional
+import uuid
 
-import ulid
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app import models, schemas
-from app.auth import get_current_user, require_roles
+from app.auth import require_roles
 from app.database import get_db
 
 router = APIRouter(prefix="/events", tags=["Events"])
@@ -36,7 +36,7 @@ def create_event(
     current_user: models.User = Depends(require_roles("iria_admin")),
 ):
     event = models.Event(
-        id=f"evt_{ulid.new()}",
+        id=f"evt_{uuid.uuid4().hex}",
         title=payload.title,
         description=payload.description,
         category=payload.category,

@@ -3,8 +3,10 @@ Heuristic AI analysis engine — explainable, rule-based scoring.
 No external ML dependencies required for MVP.
 """
 from __future__ import annotations
+
 import json
 import random
+import uuid
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
@@ -76,7 +78,7 @@ SWOT_TEMPLATES = {
 
 
 def _get_swot(sector: str) -> dict:
-    return SWOT_TEMPLATES.get(sector.lower(), SWOT_TEMPLATES["_default"])
+    return SWOT_TEMPLATES.get((sector or "").lower(), SWOT_TEMPLATES["_default"])
 
 
 def _score_factors(startup: "Startup") -> list[dict]:
@@ -149,8 +151,6 @@ def _score_factors(startup: "Startup") -> list[dict]:
 
 def run_analysis(startup: "Startup") -> dict:
     """Run heuristic analysis and return a dict matching StartupAnalysis schema."""
-    import ulid
-
     factors = _score_factors(startup)
     total_score = round(sum(f["contribution"] for f in factors), 2)
     total_score = min(max(total_score, 0), 100)
@@ -163,9 +163,8 @@ def run_analysis(startup: "Startup") -> dict:
         band = "high"
 
     swot = _get_swot(startup.sector)
-    market_note = SECTOR_MARKET_NOTES.get(
-        (startup.sector or "").lower(), DEFAULT_MARKET_NOTE
-    )
+    market_note = SECTOR_MARKET_NOTES.get((startup.sector or "").lower(), DEFAULT_MARKET_NOTE)
+
     positioning_insight = (
         f"{startup.name} is currently at {startup.stage} stage in the {startup.sector} sector. "
         f"With a success score of {total_score}/100 ({band}), the startup demonstrates "
@@ -175,7 +174,7 @@ def run_analysis(startup: "Startup") -> dict:
     )
 
     return {
-        "id": f"ana_{ulid.new()}",
+        "id": f"ana_{uuid.uuid4().hex}",
         "startup_id": startup.id,
         "success_score": total_score,
         "score_band": band,
@@ -193,17 +192,22 @@ def get_similar(startup: "Startup", all_startups: list) -> list[dict]:
     for candidate in all_startups:
         if candidate.id == startup.id:
             continue
+
         score = 0.0
         reasons = []
+
         if candidate.sector == startup.sector:
             score += 0.4
             reasons.append(f"Same sector ({startup.sector})")
+
         if candidate.stage == startup.stage:
             score += 0.3
             reasons.append(f"Same stage ({startup.stage})")
+
         if candidate.city and startup.city and candidate.city.lower() == startup.city.lower():
             score += 0.2
             reasons.append(f"Same city ({startup.city})")
+
         if score > 0:
             results.append({
                 "startup_id": candidate.id,
@@ -211,5 +215,6 @@ def get_similar(startup: "Startup", all_startups: list) -> list[dict]:
                 "similarity_score": round(min(score, 1.0), 2),
                 "reasons": reasons,
             })
+
     results.sort(key=lambda x: x["similarity_score"], reverse=True)
     return results

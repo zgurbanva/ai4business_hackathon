@@ -1,7 +1,9 @@
+# app/routers/startups.py
+
 import json
+import uuid
 from typing import Optional
 
-import ulid
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
@@ -12,16 +14,14 @@ from app.database import get_db
 
 router = APIRouter(prefix="/startups", tags=["Startups"])
 
+
 # ── counter for human-friendly IDs ──────────────────────────────────────────
-
-
 def _next_startup_code(db: Session) -> str:
     count = db.query(models.Startup).count()
     return f"AZ-ST-{count + 1:04d}"
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
-
 def _to_out(s: models.Startup) -> schemas.StartupProfileOut:
     return schemas.StartupProfileOut(
         id=s.id,
@@ -45,7 +45,6 @@ def _to_out(s: models.Startup) -> schemas.StartupProfileOut:
 
 
 # ── List startups ─────────────────────────────────────────────────────────────
-
 @router.get("", response_model=schemas.StartupListResponse)
 def list_startups(
     sector: Optional[str] = None,
@@ -58,6 +57,7 @@ def list_startups(
     _: models.User = Depends(get_current_user),
 ):
     q = db.query(models.Startup)
+
     if sector:
         q = q.filter(models.Startup.sector.ilike(f"%{sector}%"))
     if stage:
@@ -72,6 +72,7 @@ def list_startups(
 
     total = q.count()
     items = q.offset((page - 1) * page_size).limit(page_size).all()
+
     return schemas.StartupListResponse(
         items=[_to_out(s) for s in items],
         meta=schemas.PaginationMeta(page=page, page_size=page_size, total=total),
@@ -79,7 +80,6 @@ def list_startups(
 
 
 # ── Create startup ─────────────────────────────────────────────────────────────
-
 @router.post("", response_model=schemas.StartupProfileOut, status_code=201)
 def create_startup(
     payload: schemas.StartupCreateRequest,
@@ -90,7 +90,7 @@ def create_startup(
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
     startup = models.Startup(
-        id=f"st_{ulid.new()}",
+        id=f"st_{uuid.uuid4().hex}",
         startup_id_code=_next_startup_code(db),
         owner_user_id=current_user.id,
         name=payload.name,
@@ -105,6 +105,7 @@ def create_startup(
         founders_json=json.dumps([f.model_dump() for f in (payload.founders or [])]),
         traction_json=json.dumps(payload.traction.model_dump()) if payload.traction else None,
     )
+
     db.add(startup)
     db.commit()
     db.refresh(startup)
@@ -113,7 +114,6 @@ def create_startup(
 
 
 # ── Get startup ────────────────────────────────────────────────────────────────
-
 @router.get("/{startup_id}", response_model=schemas.StartupProfileOut)
 def get_startup(
     startup_id: str,
@@ -127,7 +127,6 @@ def get_startup(
 
 
 # ── Update startup ─────────────────────────────────────────────────────────────
-
 @router.patch("/{startup_id}", response_model=schemas.StartupProfileOut)
 def update_startup(
     startup_id: str,
@@ -138,6 +137,7 @@ def update_startup(
     startup = db.query(models.Startup).filter(models.Startup.id == startup_id).first()
     if not startup:
         raise HTTPException(status_code=404, detail="Startup not found")
+
     if startup.owner_user_id != current_user.id and current_user.role != "iria_admin":
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
@@ -147,6 +147,7 @@ def update_startup(
             startup.traction_json = json.dumps(val) if val else None
         else:
             setattr(startup, key, val)
+
     db.commit()
     db.refresh(startup)
     record_audit(db, current_user, "startup_updated", "startup", startup.id)
@@ -154,7 +155,6 @@ def update_startup(
 
 
 # ── AI Analysis ────────────────────────────────────────────────────────────────
-
 @router.post("/{startup_id}/analysis", response_model=schemas.StartupAnalysisOut, tags=["AI Analysis"])
 def run_analysis(
     startup_id: str,
@@ -164,13 +164,14 @@ def run_analysis(
     startup = db.query(models.Startup).filter(models.Startup.id == startup_id).first()
     if not startup:
         raise HTTPException(status_code=404, detail="Startup not found")
+
     if startup.owner_user_id != current_user.id and current_user.role not in ("iria_admin", "investor", "mentor"):
         raise HTTPException(status_code=403, detail="Insufficient permissions")
 
     result = ai_service.run_analysis(startup)
 
     analysis = models.StartupAnalysis(
-        id=result["id"],
+        id=result["id"],  # ai_service generasiya edirsə OK
         startup_id=startup.id,
         success_score=result["success_score"],
         score_band=result["score_band"],
@@ -179,12 +180,12 @@ def run_analysis(
         positioning_insight=result["positioning_insight"],
         explainability_json=json.dumps(result["explainability"]),
     )
-    db.add(analysis)
 
-    # Update cached score
+    db.add(analysis)
     startup.latest_success_score = result["success_score"]
     db.commit()
     db.refresh(analysis)
+
     record_audit(db, current_user, "analysis_run", "startup", startup.id)
 
     return schemas.StartupAnalysisOut(
@@ -209,6 +210,7 @@ def get_latest_analysis(
     startup = db.query(models.Startup).filter(models.Startup.id == startup_id).first()
     if not startup:
         raise HTTPException(status_code=404, detail="Startup not found")
+
     analysis = (
         db.query(models.StartupAnalysis)
         .filter(models.StartupAnalysis.startup_id == startup_id)
@@ -217,6 +219,7 @@ def get_latest_analysis(
     )
     if not analysis:
         raise HTTPException(status_code=404, detail="No analysis found for this startup")
+
     return schemas.StartupAnalysisOut(
         id=analysis.id,
         startup_id=analysis.startup_id,
@@ -231,7 +234,6 @@ def get_latest_analysis(
 
 
 # ── Similarity ─────────────────────────────────────────────────────────────────
-
 @router.get("/{startup_id}/similar", response_model=schemas.SimilarStartupsResponse, tags=["Similarity"])
 def get_similar(
     startup_id: str,
@@ -242,13 +244,13 @@ def get_similar(
     startup = db.query(models.Startup).filter(models.Startup.id == startup_id).first()
     if not startup:
         raise HTTPException(status_code=404, detail="Startup not found")
+
     all_startups = db.query(models.Startup).all()
     similar = ai_service.get_similar(startup, all_startups)[:limit]
     return schemas.SimilarStartupsResponse(startup_id=startup_id, items=similar)
 
 
 # ── Investor interest ──────────────────────────────────────────────────────────
-
 @router.post("/{startup_id}/interest", response_model=schemas.InvestorInterestOut, status_code=201, tags=["Investor"])
 def mark_interest(
     startup_id: str,
@@ -258,9 +260,11 @@ def mark_interest(
 ):
     if current_user.role != "investor":
         raise HTTPException(status_code=403, detail="Investor role required")
+
     startup = db.query(models.Startup).filter(models.Startup.id == startup_id).first()
     if not startup:
         raise HTTPException(status_code=404, detail="Startup not found")
+
     existing = (
         db.query(models.InvestorInterest)
         .filter(
@@ -273,14 +277,16 @@ def mark_interest(
         raise HTTPException(status_code=409, detail="Already marked as interested")
 
     interest = models.InvestorInterest(
-        id=f"int_{ulid.new()}",
+        id=f"int_{uuid.uuid4().hex}",
         investor_user_id=current_user.id,
         startup_id=startup_id,
         note=(payload.note if payload else None),
     )
+
     db.add(interest)
     db.commit()
     db.refresh(interest)
+
     record_audit(db, current_user, "investor_interest_added", "startup", startup_id)
     return schemas.InvestorInterestOut.model_validate(interest)
 
@@ -293,6 +299,7 @@ def remove_interest(
 ):
     if current_user.role != "investor":
         raise HTTPException(status_code=403, detail="Investor role required")
+
     interest = (
         db.query(models.InvestorInterest)
         .filter(
@@ -303,8 +310,7 @@ def remove_interest(
     )
     if not interest:
         raise HTTPException(status_code=404, detail="Interest not found")
+
     db.delete(interest)
     db.commit()
-
-
-from typing import Optional  # noqa: E402 (already imported above; safe duplicate)
+    

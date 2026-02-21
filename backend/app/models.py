@@ -163,6 +163,6 @@ class AuditLog(Base):
     actor = relationship("User", back_populates="audit_logs")
 
     @property
-    def metadata(self):
+    def meta(self):
         import json
         return json.loads(self.metadata_json) if self.metadata_json else {}

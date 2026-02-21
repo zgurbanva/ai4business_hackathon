@@ -374,7 +374,7 @@ class AuditLogOut(BaseModel):
     action: str
     entity_type: str
     entity_id: str
-    metadata: Optional[Dict[str, Any]] = None
+    meta: Optional[Dict[str, Any]] = None
     created_at: datetime
 
     class Config:
